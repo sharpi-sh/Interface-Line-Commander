@@ -54,6 +54,38 @@ export class UI {
 
     // Initialize modal
     this.modal = new Modal(this.gridContainer);
+
+    // Initialize sidebar structure
+    this.initializeSidebar();
+  }
+
+  initializeSidebar() {
+    // Create ship info section
+    const shipInfo = document.createElement('div');
+    shipInfo.className = 'ship-info';
+    this.sidebar.appendChild(shipInfo);
+
+    // Create command history section
+    const commandHistory = document.createElement('div');
+    commandHistory.className = 'command-history';
+    commandHistory.innerHTML = '<h3>Command History</h3>';
+    this.sidebar.appendChild(commandHistory);
+
+    // Create restart button
+    const restartButton = document.createElement('button');
+    restartButton.id = 'restart-button';
+    restartButton.className = 'restart-button';
+    restartButton.textContent = 'Restart Game';
+    restartButton.addEventListener('click', () => {
+      this.modal.show(
+        'Confirm Restart',
+        'Are you sure you want to restart the game?',
+        'Yes, restart'
+      ).then(() => {
+        window.location.reload();
+      });
+    });
+    this.sidebar.appendChild(restartButton);
   }
 
   createGrid(grid) {
@@ -120,7 +152,7 @@ export class UI {
     missiles.forEach(missile => this.renderSprite(missile, 4)); // Missiles above ship
     explosions.forEach(explosion => this.renderSprite(explosion, 5)); // Explosions on top
     
-    this.updateSidebar(ship);
+    this.updateShipInfo(ship);
     
     if (!this.commandPalette.querySelector('.help-content')) {
       this.commandPalette.innerHTML = `
@@ -132,6 +164,25 @@ export class UI {
             .join('')}
         </div>
       </div>`;
+    }
+  }
+
+  updateShipInfo(ship) {
+    const shipInfo = this.sidebar.querySelector('.ship-info');
+    if (shipInfo) {
+      shipInfo.innerHTML = `
+        <div class="ship-name">${ship.name}</div>
+        <div class="ship-stats">
+          <div>Speed: ${ship.speed.toFixed(1)} / ${ship.maxSpeed}</div>
+          <div>Heading: ${ship.heading.charAt(0).toUpperCase() + ship.heading.slice(1)}</div>
+        </div>
+        <div class="health-blocks">${Array(ship.maxLives)
+          .fill(0)
+          .map((_, i) => `<div class="health-block ${i < ship.lives ? 'active' : ''}"></div>`)
+          .join('')}
+        </div>
+        <div class="score">Score: ${ship.score}</div>
+      `;
     }
   }
 
@@ -162,62 +213,17 @@ export class UI {
   }
 
   updateCommandHistory(history) {
-    let commandHistoryElement = this.sidebar.querySelector('.command-history');
-    if (!commandHistoryElement) {
-      commandHistoryElement = document.createElement('div');
-      commandHistoryElement.className = 'command-history';
-      this.sidebar.appendChild(commandHistoryElement);
-    }
-
-    commandHistoryElement.innerHTML = `
-      <h3>Command History</h3>
-      ${history.map(cmd => `
-        <div class="command-entry">
-          <span style="color: ${cmd.valid ? '#18FF27' : '#FF0000'}">$</span>
-          <span style="color: ${cmd.valid ? '#18FF27' : '#46793E'}">${cmd.text}</span>
-        </div>
-      `).join('')}
-    `;
-  }
-
-  updateSidebar(ship) {
-    const shipInfoHtml = `
-      <div class="ship-info">
-        <div class="ship-name">${ship.name}</div>
-        <div class="ship-stats">
-          <div>Speed: ${ship.speed.toFixed(1)} / ${ship.maxSpeed}</div>
-          <div>Heading: ${ship.heading.charAt(0).toUpperCase() + ship.heading.slice(1)}</div>
-        </div>
-        <div class="health-blocks">${Array(ship.maxLives)
-          .fill(0)
-          .map((_, i) => `<div class="health-block ${i < ship.lives ? 'active' : ''}"></div>`)
-          .join('')}
-        </div>
-        <div class="score">Score: ${ship.score}</div>
-      </div>
-    `;
-
-    const commandHistoryHtml = `
-      <div class="command-history">
+    const commandHistoryElement = this.sidebar.querySelector('.command-history');
+    if (commandHistoryElement) {
+      commandHistoryElement.innerHTML = `
         <h3>Command History</h3>
-        ${this.game.cli.commandHistory.map(cmd => `
+        ${history.map(cmd => `
           <div class="command-entry">
             <span style="color: ${cmd.valid ? '#18FF27' : '#FF0000'}">$</span>
             <span style="color: ${cmd.valid ? '#18FF27' : '#46793E'}">${cmd.text}</span>
           </div>
         `).join('')}
-      </div>
-    `;
-
-    const restartButtonHtml = `<button id="restart-button" class="restart-button">Restart Game</button>`;
-
-    this.sidebar.innerHTML = shipInfoHtml + commandHistoryHtml + restartButtonHtml;
-
-    const restartButton = document.getElementById('restart-button');
-    if (restartButton) {
-      restartButton.addEventListener('click', () => {
-        window.location.reload();
-      });
+      `;
     }
   }
 }
