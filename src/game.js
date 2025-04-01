@@ -145,37 +145,42 @@ export class Game {
   }
 
   checkCollisions() {
-    this.missiles = this.missiles.filter(missile => !this.handleMissileMovement(missile));
-    this.torpedoes = this.torpedoes.filter(torpedo => !this.handleTorpedoMovement(torpedo));
+    // Update missiles and check for collisions
+    this.missiles = this.missiles.filter(missile => {
+      // First check if missile has hit grid boundaries
+      if (missile.move()) {
+        this.explosions.push(new Explosion(missile.position.x, missile.position.y));
+        return false;
+      }
+      
+      // Then check for collision with submarine
+      if (this.submarine.lives > 0 && this.collisionDetector.checkCollision(missile, this.submarine)) {
+        this.handleMissileHit(missile);
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Update torpedoes and check for collisions
+    this.torpedoes = this.torpedoes.filter(torpedo => {
+      // First check if torpedo has hit grid boundaries
+      if (torpedo.move()) {
+        this.explosions.push(new Explosion(torpedo.position.x, torpedo.position.y));
+        return false;
+      }
+      
+      // Then check for collision with ship
+      if (this.ship.lives > 0 && this.collisionDetector.checkCollision(torpedo, this.ship)) {
+        this.handleTorpedoHit(torpedo);
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Check mine collisions
     this.mines = this.mines.filter(mine => !this.handleMineCollisions(mine));
-  }
-
-  handleMissileMovement(missile) {
-    if (missile.move()) {
-      this.explosions.push(new Explosion(missile.position.x, missile.position.y));
-      return true;
-    }
-    
-    if (this.submarine.lives > 0 && this.collisionDetector.checkCollision(missile, this.submarine)) {
-      this.handleMissileHit(missile);
-      return true;
-    }
-    
-    return false;
-  }
-
-  handleTorpedoMovement(torpedo) {
-    if (torpedo.move()) {
-      this.explosions.push(new Explosion(torpedo.position.x, torpedo.position.y));
-      return true;
-    }
-    
-    if (this.ship.lives > 0 && this.collisionDetector.checkCollision(torpedo, this.ship)) {
-      this.handleTorpedoHit(torpedo);
-      return true;
-    }
-    
-    return false;
   }
 
   handleMineCollisions(mine) {
