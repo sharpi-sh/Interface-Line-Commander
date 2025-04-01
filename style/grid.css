@@ -1,0 +1,5 @@
+.grid-cell {
+  background-color: #000000;
+  aspect-ratio: 1;
+  position: relative;
+}

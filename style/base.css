@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000000;
+  height: 100vh;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
+#game-container {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 300px 1fr auto;
+  grid-template-rows: 1fr 80px;
+  grid-template-areas:
+    "left-sidebar main right-sidebar"
+    "left-sidebar command command";
+}
+
+#sidebar {
+  grid-area: left-sidebar;
+  background: #000000;
+  border-right: 1px solid #444444;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+#command-palette {
+  grid-area: right-sidebar;
+  background: #000000;
+  border-left: 1px solid #444444;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+#grid-container {
+  grid-area: main;
+  display: grid;
+  grid-template-columns: repeat(100, 1fr);
+  background-color: #232323;
+  gap: 1px;
+  padding: 1px;
+  aspect-ratio: 1;
+  margin: auto;
+  height: min(calc(100vh - 80px), calc(100vw - 620px));
+  width: min(calc(100vh - 80px), calc(100vw - 620px));
+  position: relative;
+}
+
+#command-wrapper {
+  grid-area: command;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #000000;
+  padding: 20px;
+  border-top: 1px solid #444444;
+}
